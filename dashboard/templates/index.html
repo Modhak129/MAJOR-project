@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Edge-AI Safety Dashboard</title>
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background-color: #1e1e1e; padding: 20px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+        th { background-color: #2a2a2a; }
+        .alert-high { color: #ff4c4c; }
+    </style>
+    <script>
+        async function fetchData() {
+            try {
+                const alertsRes = await fetch('/api/alerts');
+                const alerts = await alertsRes.json();
+                const alertsTable = document.getElementById('alerts-body');
+                alertsTable.innerHTML = '';
+                alerts.forEach(a => {
+                    alertsTable.innerHTML += `<tr><td>${a.client_id}</td><td class="alert-high">${a.type}</td><td>${a.confidence.toFixed(2)}</td><td>${new Date(a.timestamp * 1000).toLocaleTimeString()}</td></tr>`;
+                });
+
+                const metricsRes = await fetch('/api/metrics');
+                const metrics = await metricsRes.json();
+                document.getElementById('fl-round').innerText = metrics.round;
+                document.getElementById('fl-map').innerText = metrics.map.toFixed(4);
+                document.getElementById('fl-loss').innerText = metrics.loss.toFixed(4);
+                document.getElementById('fl-savings').innerText = (metrics.savings_bytes / (1024*1024)).toFixed(2) + ' MB';
+
+                const clientsTable = document.getElementById('clients-body');
+                clientsTable.innerHTML = '';
+                Object.values(metrics.clients).forEach(c => {
+                    clientsTable.innerHTML += `<tr><td>${c.client_id}</td><td>${c.tier}</td><td>${c.status}</td></tr>`;
+                });
+            } catch (e) {
+                console.error("Dashboard fetch error", e);
+            }
+        }
+        setInterval(fetchData, 2000);
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <h1>Safety Compliance & Monitoring Dashboard</h1>
+    <div class="grid">
+        <div class="card">
+            <h2>FL Convergence Monitor</h2>
+            <p>Round: <span id="fl-round">0</span></p>
+            <p>Global mAP: <span id="fl-map">0.0</span></p>
+            <p>Global Loss: <span id="fl-loss">0.0</span></p>
+            <p>Data Savings (Sparsification): <span id="fl-savings">0 MB</span></p>
+        </div>
+        <div class="card">
+            <h2>Connected Edge Nodes</h2>
+            <table>
+                <thead><tr><th>Client ID</th><th>Model Tier</th><th>Status</th></tr></thead>
+                <tbody id="clients-body"></tbody>
+            </table>
+        </div>
+        <div class="card" style="grid-column: 1 / span 2;">
+            <h2>Live Safety Alerts</h2>
+            <table>
+                <thead><tr><th>Node ID</th><th>Violation Type</th><th>Confidence</th><th>Timestamp</th></tr></thead>
+                <tbody id="alerts-body"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
