@@ -1,0 +1,22 @@
+path: C:\Major Project\Project-2
+train: sh17_train.txt
+val: sh17_val.txt
+names:
+  0: Person
+  1: Head
+  2: Face
+  3: Glasses
+  4: Face-mask-medical
+  5: Face-guard
+  6: Ear
+  7: Earmuffs
+  8: Hands
+  9: Gloves
+  10: Foot
+  11: Shoes
+  12: Safety-vest
+  13: Tools
+  14: Helmet
+  15: Medical-suit
+  16: Safety-suit
+nc: 17

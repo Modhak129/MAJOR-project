@@ -1,0 +1,42 @@
+{
+    "SH17_v8n": {
+        "model": "SH17_v8n",
+        "video": "hardhat.mp4",
+        "total_persons": 1153,
+        "total_helmets": 96,
+        "total_vests": 876,
+        "total_gloves": 44,
+        "unique_workers": 21,
+        "latency_ms": 7.574828535416302,
+        "fps": 132.01618958428892,
+        "helmet_mean_conf": 0.6268045267927538,
+        "helmet_median_conf": 0.6262561082839966,
+        "helmet_max_conf": 0.8107799291610718,
+        "vest_mean_conf": 0.7697424694331917,
+        "vest_median_conf": 0.8109980821609497,
+        "vest_max_conf": 0.9340555667877197,
+        "gloves_mean_conf": 0.6630905446681109,
+        "gloves_median_conf": 0.5953681766986847,
+        "gloves_max_conf": 0.9384812116622925
+    },
+    "SH17_v8s": {
+        "model": "SH17_v8s",
+        "video": "hardhat.mp4",
+        "total_persons": 1106,
+        "total_helmets": 85,
+        "total_vests": 892,
+        "total_gloves": 165,
+        "unique_workers": 18,
+        "latency_ms": 7.862139766605373,
+        "fps": 127.19183704257256,
+        "helmet_mean_conf": 0.5912392352725945,
+        "helmet_median_conf": 0.5856128036975861,
+        "helmet_max_conf": 0.7711688280105591,
+        "vest_mean_conf": 0.7741826303795497,
+        "vest_median_conf": 0.8056986331939697,
+        "vest_max_conf": 0.939845621585846,
+        "gloves_mean_conf": 0.6919237294617822,
+        "gloves_median_conf": 0.7052874565124512,
+        "gloves_max_conf": 0.9158176779747009
+    }
+}

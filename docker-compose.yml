@@ -1,0 +1,107 @@
+version: '3.8'
+services:
+  fl_server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./experiments:/app/experiments
+      - ./config:/app/config
+      - ./server:/app/server
+    networks:
+      - fl_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s = socket.socket(); s.connect(('127.0.0.1', 8080)); s.close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FLASK_ENV=development
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./experiments:/app/experiments
+      - ./dashboard:/app/dashboard
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - fl_network
+
+  edge_node_1:
+    build:
+      context: .
+      dockerfile: edge/Dockerfile
+    environment:
+      - CLIENT_ID=node_constrained
+      - SIMULATED_VRAM_MB=2048
+      - CPU_CORES=2
+      - SERVER_ADDRESS=fl_server:8080
+      - DASHBOARD_URL=http://dashboard:5000
+      - FLASK_APP=edge_node_1
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./edge:/app/edge
+    depends_on:
+      fl_server:
+        condition: service_healthy
+      dashboard:
+        condition: service_started
+    networks:
+      - fl_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  edge_node_2:
+    build:
+      context: .
+      dockerfile: edge/Dockerfile
+    environment:
+      - CLIENT_ID=node_capable
+      - SIMULATED_VRAM_MB=4096
+      - CPU_CORES=4
+      - SERVER_ADDRESS=fl_server:8080
+      - DASHBOARD_URL=http://dashboard:5000
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./edge:/app/edge
+    depends_on:
+      fl_server:
+        condition: service_healthy
+      dashboard:
+        condition: service_started
+    networks:
+      - fl_network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'
+          memory: 4G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+networks:
+  fl_network:
+    driver: bridge

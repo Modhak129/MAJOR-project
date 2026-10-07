@@ -1,0 +1,4 @@
+imgsz,detected,confidence
+320,YES,0.8447
+640,YES,0.8018
+960,YES,0.7863

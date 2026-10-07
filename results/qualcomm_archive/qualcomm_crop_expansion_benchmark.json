@@ -1,0 +1,79 @@
+[
+    {
+        "expansion": 0.0,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 1,
+        "vests_found": 0,
+        "helmet_conf_sum": 0.4963220953941345,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 133.23025226593018,
+        "ppe_latency_ms": 4.498074452082316
+    },
+    {
+        "expansion": 0.05,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 2,
+        "vests_found": 0,
+        "helmet_conf_sum": 1.1750447154045105,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 68.29018115997314,
+        "ppe_latency_ms": 4.455467065175374
+    },
+    {
+        "expansion": 0.1,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 3,
+        "vests_found": 0,
+        "helmet_conf_sum": 1.847648024559021,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 68.66072654724121,
+        "ppe_latency_ms": 4.566401243209839
+    },
+    {
+        "expansion": 0.15,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 1,
+        "vests_found": 0,
+        "helmet_conf_sum": 0.4826070964336395,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 66.61295890808105,
+        "ppe_latency_ms": 4.584322373072307
+    },
+    {
+        "expansion": 0.2,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 10,
+        "vests_found": 0,
+        "helmet_conf_sum": 5.639953464269638,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 70.58783054351807,
+        "ppe_latency_ms": 4.550367593765259
+    },
+    {
+        "expansion": 0.25,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 13,
+        "vests_found": 0,
+        "helmet_conf_sum": 7.4010100066661835,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 68.86064529418945,
+        "ppe_latency_ms": 4.568318525950114
+    },
+    {
+        "expansion": 0.3,
+        "total_persons": 24,
+        "unique_workers": 1,
+        "helmets_found": 3,
+        "vests_found": 0,
+        "helmet_conf_sum": 1.7399101853370667,
+        "vest_conf_sum": 0.0,
+        "pipeline_latency_ms": 69.21037673950195,
+        "ppe_latency_ms": 4.299620787302653
+    }
+]

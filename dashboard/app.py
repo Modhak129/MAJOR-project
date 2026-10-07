@@ -292,5 +292,55 @@ def handle_processed_frame(data):
     # Route processed frame back to frontend
     emit('processed_frame_result', data, broadcast=True, include_self=False)
 
+@socketio.on('demo_finished')
+def handle_demo_finished(data):
+    print(f"Received demo_finished from edge node: {data}", flush=True)
+    emit('demo_finished', data, broadcast=True, include_self=False)
+
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'data/uploads'
+ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/video/upload', methods=['POST'])
+def upload_video():
+    if 'video' not in request.files:
+        return jsonify({"error": "No video part"}), 400
+    file = request.files['video']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        # Using forward slashes for internal path mapping in Docker
+        docker_filepath = f"data/uploads/{filename}"
+        return jsonify({"status": "success", "file_path": docker_filepath, "filename": filename})
+    return jsonify({"error": "File type not allowed"}), 400
+
+@app.route('/api/edge/source', methods=['POST'])
+def set_edge_source():
+    data = request.json
+    node_id = data.get("node_id")
+    client_id = "node_constrained" if node_id == "edge_node_1" else "node_capable" if node_id == "edge_node_2" else node_id
+    socketio.emit('edge_control', {"client_id": client_id, "command": "set_source", "source": data})
+    return jsonify({"status": "Source updated"})
+
+@app.route('/api/edge/demo/control', methods=['POST'])
+def demo_control():
+    data = request.json
+    node_id = data.get("node_id")
+    client_id = "node_constrained" if node_id == "edge_node_1" else "node_capable" if node_id == "edge_node_2" else node_id
+    socketio.emit('edge_control', {"client_id": client_id, "command": "demo_control", "action": data.get("action")})
+    return jsonify({"status": f"Demo control {data.get('action')} sent"})
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)

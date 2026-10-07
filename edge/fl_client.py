@@ -200,14 +200,15 @@ def on_connect():
 
 @sio.on('process_frame')
 def on_process_frame(data):
-    global inference_engine, inference_running, edge_mode
+    global inference_engine, inference_running, edge_mode, video_source_type
     target_node = data.get("target_node")
     client_id = os.environ.get("CLIENT_ID", "unknown")
     if target_node and target_node != client_id:
         return
         
     print(f"[{client_id}] Received frame! inference_running={inference_running}, mode={edge_mode}", flush=True)
-    if not inference_running or edge_mode != "MONITOR": return
+    if not inference_running or edge_mode != "MONITOR" or video_source_type == "upload":
+        return
 
     try:
         # Decode base64 frame
@@ -234,13 +235,25 @@ def on_update_geofence(data):
     if inference_engine:
         inference_engine.update_geofence(data.get("polygon", []))
 
+# Video Demo State
+video_source_type = "webcam"
+demo_playback_state = "stopped"
+demo_video_path = None
+demo_cap = None
+demo_frame_delay = 0.033
+
+demo_session_id = None
+
 @sio.on('edge_control')
 def on_edge_control(data):
     global inference_running, manual_training_trigger, edge_mode, demo_training_trigger
+    global video_source_type, demo_playback_state, demo_video_path, demo_cap, demo_frame_delay
+    global demo_session_id
     client_id = os.environ.get("CLIENT_ID", "unknown")
     if data.get("client_id") == client_id:
         cmd = data.get("command")
         mode = data.get("mode")
+        
         if cmd == "mode_switch":
             edge_mode = mode
             if mode == "MONITOR":
@@ -261,16 +274,112 @@ def on_edge_control(data):
                 pass
             print(f"[{client_id}] Control command applied: {mode}")
 
+        elif cmd == "set_source":
+            source_data = data.get("source", {})
+            src_type = source_data.get("source_type")
+            if src_type == "webcam":
+                video_source_type = "webcam"
+                demo_playback_state = "stopped"
+                if demo_cap:
+                    demo_cap.release()
+                    demo_cap = None
+                print(f"[{client_id}] Source set to: webcam")
+            elif src_type == "upload":
+                # We do NOT immediately open the video. We wait for 'play' or 'reset' to actually start.
+                video_source_type = "upload"
+                demo_video_path = source_data.get("video_path")
+                demo_playback_state = "ready"
+                if demo_cap:
+                    demo_cap.release()
+                    demo_cap = None
+                demo_session_id = source_data.get("session_id", "unknown")
+                print(f"[{client_id}] Source set to: upload, session: {demo_session_id}")
+
+        elif cmd == "demo_control":
+            action = data.get("action")
+            if video_source_type != "upload":
+                return
+                
+            if action == "play":
+                if demo_playback_state in ["ready", "stopped", "finished"]:
+                    # Start fresh
+                    if demo_cap:
+                        demo_cap.release()
+                    demo_cap = cv2.VideoCapture(demo_video_path)
+                    fps = demo_cap.get(cv2.CAP_PROP_FPS)
+                    if fps <= 0: fps = 30
+                    demo_frame_delay = 1.0 / fps
+                    if inference_engine:
+                        inference_engine.reset_tracker()
+                demo_playback_state = "playing"
+                
+            elif action == "pause":
+                demo_playback_state = "paused"
+                
+            elif action == "reset":
+                if demo_cap:
+                    demo_cap.release()
+                demo_cap = cv2.VideoCapture(demo_video_path)
+                if inference_engine:
+                    inference_engine.reset_tracker()
+                demo_playback_state = "paused"
+                
+            print(f"[{client_id}] Demo control: {action}, state: {demo_playback_state}")
+
 def run_background_inference_loop():
-    # Fallback for generating random frames if not receiving from websocket (for node_2)
-    global inference_engine, inference_running
+    global inference_engine, inference_running, edge_mode
+    global video_source_type, demo_playback_state, demo_cap, demo_frame_delay
+    global demo_session_id
+    
+    first_frame_emitted = False
+    
     while True:
-        if inference_running and inference_engine:
-            # We don't process random frames here anymore if we want to rely on webcam.
-            # But we can keep it alive. We will just sleep.
-            time.sleep(1)
-        else:
-            time.sleep(1)
+        if not inference_running or edge_mode != "MONITOR" or video_source_type != "upload":
+            time.sleep(0.5)
+            first_frame_emitted = False
+            continue
+            
+        if demo_playback_state != "playing":
+            time.sleep(0.1)
+            continue
+            
+        if demo_cap is None or not demo_cap.isOpened():
+            print(f"Demo error: cap not opened")
+            demo_playback_state = "error"
+            sio.emit('demo_error', {"node_id": os.environ.get("CLIENT_ID"), "session_id": demo_session_id})
+            continue
+            
+        start_time = time.time()
+        ret, frame = demo_cap.read()
+        
+        if not ret:
+            print(f"Demo finished (EOF)")
+            demo_playback_state = "finished"
+            client_id = os.environ.get("CLIENT_ID", "unknown")
+            sio.emit('demo_finished', {"node_id": client_id, "session_id": demo_session_id})
+            if demo_cap:
+                demo_cap.release()
+                demo_cap = None
+            first_frame_emitted = False
+            continue
+            
+        try:
+            processed = inference_engine.process_frame(frame)
+            _, buffer = cv2.imencode('.jpg', processed)
+            b64_str = "data:image/jpeg;base64," + base64.b64encode(buffer).decode('utf-8')
+            sio.emit('processed_frame_result', {"image": b64_str, "session_id": demo_session_id})
+            
+            if not first_frame_emitted:
+                sio.emit('demo_started', {"node_id": os.environ.get("CLIENT_ID"), "session_id": demo_session_id})
+                first_frame_emitted = True
+                
+        except Exception as e:
+            print(f"Demo processing error: {e}", flush=True)
+            
+        elapsed = time.time() - start_time
+        sleep_time = max(0, demo_frame_delay - elapsed)
+        if sleep_time > 0:
+            time.sleep(sleep_time)
 
 def main():
     global inference_engine

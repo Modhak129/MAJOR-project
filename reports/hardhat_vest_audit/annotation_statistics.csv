@@ -1,0 +1,8 @@
+Metric,Value
+missing_images,0
+missing_labels,0
+empty_labels,13
+malformed_lines,0
+out_of_bounds,0
+zero_area,0
+invalid_class,0

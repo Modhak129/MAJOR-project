@@ -1,0 +1,251 @@
+======================================================================
+PHASE 1: REPRODUCING EXACT STARTUP PATH FROM fl_client.py
+======================================================================
+Tier selected: nano
+Stage-1 model_path from config['models']['nano']: edge/weights/clean_sh17_yolov8n_640_best.pt
+Stage-1 model file exists: True
+
+Initializing InferenceEngine(config, 'edge/weights/clean_sh17_yolov8n_640_best.pt', 'node_constrained', 'http://localhost:5000')...
+
+--- InferenceEngine state after __init__ ---
+ppe_detector_mode = 'two_stage'
+helmet_conf = 0.4
+helmet_crop_expansion = 0.2
+min_conf (global Stage-1 threshold) = 0.45
+helmet_model is None = False
+helmet_model type = <class 'ultralytics.models.yolo.model.YOLO'>
+Stage-2 model names: {0: 'Helmet'}
+Stage-1 model names: {0: 'Person', 1: 'Head', 2: 'Face', 3: 'Glasses', 4: 'Face-mask-medical', 5: 'Face-guard', 6: 'Ear', 7: 'Earmuffs', 8: 'Hands', 9: 'Gloves', 10: 'Foot', 11: 'Shoes', 12: 'Safety-vest', 13: 'Tools', 14: 'Helmet', 15: 'Medical-suit', 16: 'Safety-suit'}
+
+======================================================================
+PHASE 2: RUNTIME FRAME PROCESSING WITH INSTRUMENTED LOGGING
+======================================================================
+
+--- Processing: data\raw_dataset\source_files\source_files\hardhat.mp4 ---
+Processed 50 frames from data\raw_dataset\source_files\source_files\hardhat.mp4
+
+--- Processing: data\raw_dataset\source_files\source_files\indianworkers.mp4 ---
+
+  [FRAME 1] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (28.5, 329.9, 171.1, 720.0)
+    person_conf = 0.878
+    person_size = 142.6 x 390.1
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (14, 290, 185, 720)
+    [STAGE2] Crop size = 171 x 430
+    [STAGE2] Crop extracted: shape=(430, 171, 3)
+    [STAGE2] Crop saved: C:\Major Project\Project-2\reports\two_stage_debug\crops\runtime_frame1_track1.jpg
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.812 crop_bbox=(42,39,105,121)
+    [STAGE2] Full-frame bbox = (55,328,118,410)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.812057614326477]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 2] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (28.1, 330.3, 170.6, 720.0)
+    person_conf = 0.876
+    person_size = 142.5 x 389.7
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (13, 291, 184, 720)
+    [STAGE2] Crop size = 171 x 429
+    [STAGE2] Crop extracted: shape=(429, 171, 3)
+    [STAGE2] Crop saved: C:\Major Project\Project-2\reports\two_stage_debug\crops\runtime_frame2_track1.jpg
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.804 crop_bbox=(43,38,106,120)
+    [STAGE2] Full-frame bbox = (56,329,118,410)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8040428757667542, 0.05574759468436241]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 3] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (25.0, 330.6, 167.4, 720.0)
+    person_conf = 0.889
+    person_size = 142.3 x 389.4
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (10, 291, 181, 720)
+    [STAGE2] Crop size = 171 x 429
+    [STAGE2] Crop extracted: shape=(429, 171, 3)
+    [STAGE2] Crop saved: C:\Major Project\Project-2\reports\two_stage_debug\crops\runtime_frame3_track1.jpg
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.865 crop_bbox=(45,39,107,120)
+    [STAGE2] Full-frame bbox = (55,329,117,411)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8647573590278625, 0.05266358330845833, 0.010436459444463253]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 4] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (26.1, 332.2, 168.1, 720.0)
+    person_conf = 0.888
+    person_size = 142.0 x 387.8
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (11, 293, 182, 720)
+    [STAGE2] Crop size = 171 x 427
+    [STAGE2] Crop extracted: shape=(427, 171, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.816 crop_bbox=(44,37,107,118)
+    [STAGE2] Full-frame bbox = (54,330,117,410)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8158103823661804, 0.04517778754234314]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 5] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (25.8, 334.7, 167.1, 720.0)
+    person_conf = 0.904
+    person_size = 141.3 x 385.3
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (11, 296, 181, 720)
+    [STAGE2] Crop size = 170 x 424
+    [STAGE2] Crop extracted: shape=(424, 170, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.828 crop_bbox=(42,34,105,116)
+    [STAGE2] Full-frame bbox = (52,329,116,411)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8276774883270264, 0.014578836970031261]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 6] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (25.4, 336.0, 166.7, 720.0)
+    person_conf = 0.912
+    person_size = 141.2 x 384.0
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (11, 297, 180, 720)
+    [STAGE2] Crop size = 169 x 423
+    [STAGE2] Crop extracted: shape=(423, 169, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.847 crop_bbox=(43,33,105,116)
+    [STAGE2] Full-frame bbox = (53,330,115,412)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8474239110946655]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 7] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (25.2, 336.2, 166.9, 719.7)
+    person_conf = 0.920
+    person_size = 141.7 x 383.5
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (11, 297, 181, 720)
+    [STAGE2] Crop size = 170 x 423
+    [STAGE2] Crop extracted: shape=(423, 170, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.865 crop_bbox=(42,33,104,115)
+    [STAGE2] Full-frame bbox = (53,330,115,412)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8647232055664062]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 8] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (24.4, 335.3, 167.2, 719.2)
+    person_conf = 0.912
+    person_size = 142.8 x 383.9
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (10, 296, 181, 720)
+    [STAGE2] Crop size = 171 x 424
+    [STAGE2] Crop extracted: shape=(424, 171, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.825 crop_bbox=(42,33,104,116)
+    [STAGE2] Full-frame bbox = (51,329,114,412)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8246694207191467]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 9] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (24.0, 334.3, 167.8, 718.7)
+    person_conf = 0.916
+    person_size = 143.8 x 384.4
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (9, 295, 182, 720)
+    [STAGE2] Crop size = 173 x 425
+    [STAGE2] Crop extracted: shape=(425, 173, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.812 crop_bbox=(41,34,105,116)
+    [STAGE2] Full-frame bbox = (50,329,113,411)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8122341632843018]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+
+  [FRAME 10] [STAGE1] Person detected:
+    track_id = 1
+    person_bbox = (22.2, 333.6, 167.2, 718.6)
+    person_conf = 0.918
+    person_size = 144.9 x 385.0
+    [STAGE1] SH17 Vest associated = False
+    [STAGE1] SH17 Helmet associated = False
+    [STAGE2] Crop expansion = 0.2
+    [STAGE2] Expanded crop bbox = (7, 295, 181, 720)
+    [STAGE2] Crop size = 174 x 425
+    [STAGE2] Crop extracted: shape=(425, 174, 3)
+    [STAGE2] PPE detector called: YES
+    [STAGE2] Production threshold = 0.4
+    [STAGE2] Raw box count = 1
+    [STAGE2] Detection: cls=0 conf=0.822 crop_bbox=(43,33,106,117)
+    [STAGE2] Full-frame bbox = (50,328,113,411)
+    [STAGE2] Helmet detected = True
+    [STAGE2] Diagnostic (conf=0.01): helmet confs = [0.8221129775047302]
+    [COMPLIANCE] found_items = {'helmet'}
+    [COMPLIANCE] missing = ['safety vest']
+    [COMPLIANCE] Would fire alert = True
+Processed 50 frames from data\raw_dataset\source_files\source_files\indianworkers.mp4

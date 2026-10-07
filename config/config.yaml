@@ -19,16 +19,24 @@ data:
   train_split: 0.8
 
 inference:
+  ppe_detector_mode: "two_stage"
+  helmet_model_path: "edge/weights/hardhat_helmet_yolov8n_640_best.pt"
+  vest_model_path: "edge/weights/stage2_vest_yolov8n_640_best.pt"
+  helmet_conf: 0.40
+  helmet_crop_expansion: 0.20
+  vest_crop_expansion: 0.20
   input_resolution: 320
   min_confidence: 0.45
+  vest_confidence: 0.35
   alert_cooldown_sec: 10
   quantization: "int8"
 
 models:
-  nano: "models/yolov8n.pt"
-  small: "models/yolov8s.pt"
+  nano: "edge/weights/clean_sh17_yolov8n_640_best.pt"
+  small: "edge/weights/sh17_yolov8s_fine_best.pt"
 
 server:
   grpc_port: 8080
   dashboard_port: 5000
   checkpoint_dir: "experiments/checkpoints"
+

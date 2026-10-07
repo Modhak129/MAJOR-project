@@ -1,0 +1,42 @@
+{
+    "SH17_v8n": {
+        "model": "SH17_v8n",
+        "video": "indianworkers.mp4",
+        "total_persons": 1625,
+        "total_helmets": 5,
+        "total_vests": 616,
+        "total_gloves": 28,
+        "unique_workers": 14,
+        "latency_ms": 10.80452181674816,
+        "fps": 92.55384152678496,
+        "helmet_mean_conf": 0.6151357293128967,
+        "helmet_median_conf": 0.6073368191719055,
+        "helmet_max_conf": 0.6822969913482666,
+        "vest_mean_conf": 0.6504043028853572,
+        "vest_median_conf": 0.6407272815704346,
+        "vest_max_conf": 0.8785045742988586,
+        "gloves_mean_conf": 0.5805202573537827,
+        "gloves_median_conf": 0.5608338713645935,
+        "gloves_max_conf": 0.8838219046592712
+    },
+    "SH17_v8s": {
+        "model": "SH17_v8s",
+        "video": "indianworkers.mp4",
+        "total_persons": 1917,
+        "total_helmets": 4,
+        "total_vests": 1004,
+        "total_gloves": 95,
+        "unique_workers": 11,
+        "latency_ms": 11.274210464807204,
+        "fps": 88.69800711291765,
+        "helmet_mean_conf": 0.6405709832906723,
+        "helmet_median_conf": 0.6170503497123718,
+        "helmet_max_conf": 0.7927132844924927,
+        "vest_mean_conf": 0.6551305376111515,
+        "vest_median_conf": 0.6553487777709961,
+        "vest_max_conf": 0.8706592917442322,
+        "gloves_mean_conf": 0.6386894044123198,
+        "gloves_median_conf": 0.6527264714241028,
+        "gloves_max_conf": 0.8207310438156128
+    }
+}

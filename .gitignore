@@ -33,7 +33,6 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
-.pytest_cache/
 pytestdebug.log
 
 # IDEs
@@ -41,3 +40,16 @@ pytestdebug.log
 .idea/
 *.swp
 *.swo
+
+# Node / JS
+node_modules/
+
+# Models & Weights
+*.pt
+*.onnx
+*.data
+
+# Logs & Dumps
+*.log
+docker_logs*.txt
+full_logs.txt
