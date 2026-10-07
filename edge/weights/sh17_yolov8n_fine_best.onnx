@@ -1,0 +1,25 @@
+r8
+description)Ultralytics sh17_YOLOv8n_fine_best model r
+authorUltralyticsr3
+license(AGPL-3.0 https://ultralytics.com/licenser"
+date2026-09-29T07:33:32.400112r
+version8.1.0r
+stride32r
+taskdetectr
+
+batch1r
+imgsz
+[640, 640]r„
+namesú{0: 'Person', 1: 'Head', 2: 'Face', 3: 'Glasses', 4: 'Face-mask-medical', 5: 'Face-guard', 6: 'Ear', 7: 'Earmuffs', 8: 'Hands', 9: 'Gloves', 10: 'Foot', 11: 'Shoes', 12: 'Safety-vest', 13: 'Tools', 14: 'Helmet', 15: 'Medical-suit', 16: 'Safety-suit'}r8
+description)Ultralytics sh17_YOLOv8n_fine_best model r
+authorUltralyticsr3
+license(AGPL-3.0 https://ultralytics.com/licenser"
+date2026-09-29T07:33:32.453689r
+version8.1.0r
+stride32r
+taskdetectr
+
+batch1r
+imgsz
+[640, 640]r„
+namesú{0: 'Person', 1: 'Head', 2: 'Face', 3: 'Glasses', 4: 'Face-mask-medical', 5: 'Face-guard', 6: 'Ear', 7: 'Earmuffs', 8: 'Hands', 9: 'Gloves', 10: 'Foot', 11: 'Shoes', 12: 'Safety-vest', 13: 'Tools', 14: 'Helmet', 15: 'Medical-suit', 16: 'Safety-suit'}

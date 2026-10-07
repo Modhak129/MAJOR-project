@@ -1,4 +1,4 @@
-# Environments
+# Virtual Environments
 .env
 .venv
 env/
@@ -9,14 +9,17 @@ venv.bak/
 venv_edge/
 venv_edge_312/
 
-# User defined ignores
+# Workspace & Data Directories
 extra/
 data/
 logs/
 runs/
 poster_graphs/
+experiments/checkpoints/
+results/
+scratch/
 
-# Python
+# Python Cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -44,12 +47,22 @@ pytestdebug.log
 # Node / JS
 node_modules/
 
-# Models & Weights
-*.pt
-*.onnx
-*.data
-
-# Logs & Dumps
+# Logs & Dump Files
 *.log
 docker_logs*.txt
 full_logs.txt
+*_log.txt
+*_diag.txt
+audit_*.txt
+debug_*.png
+debug_*.jpg
+*.bak
+*_backup.*
+sh17_train.txt
+sh17_val.txt
+dataset_audit_output.txt
+
+# Intermediate Training Checkpoints (Keep best trained models, exclude scratch training checkpoints)
+edge/weights/training/
+*.data
+/yolov8n.pt

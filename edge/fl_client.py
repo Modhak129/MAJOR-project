@@ -198,25 +198,34 @@ class YOLOClient(fl.client.NumPyClient):
 def on_connect():
     print('Connected to Dashboard SocketIO')
 
+process_lock = threading.Lock()
+
 @sio.on('process_frame')
 def on_process_frame(data):
     global inference_engine, inference_running, edge_mode, video_source_type
-    target_node = data.get("target_node")
-    client_id = os.environ.get("CLIENT_ID", "unknown")
-    if target_node and target_node != client_id:
+    
+    if not process_lock.acquire(blocking=False):
+        # Drop frame to prevent thread explosion and OOM
         return
         
-    print(f"[{client_id}] Received frame! inference_running={inference_running}, mode={edge_mode}", flush=True)
-    if not inference_running or edge_mode != "MONITOR" or video_source_type == "upload":
-        return
-
     try:
+        target_node = data.get("target_node")
+        client_id = os.environ.get("CLIENT_ID", "unknown")
+        if target_node and target_node != client_id:
+            return
+            
+        if not inference_running or edge_mode != "MONITOR" or video_source_type == "upload":
+            return
+
         # Decode base64 frame
         b64_img = data.get("image", "")
         img_data = base64.b64decode(b64_img.split(',')[1])
         np_arr = np.frombuffer(img_data, np.uint8)
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
         
+        if inference_engine is None:
+            return
+            
         # Inference
         processed = inference_engine.process_frame(frame)
         
@@ -228,6 +237,8 @@ def on_process_frame(data):
         sio.emit('processed_frame_result', b64_str)
     except Exception as e:
         print(f"Frame processing error: {e}", flush=True)
+    finally:
+        process_lock.release()
 
 @sio.on('update_geofence')
 def on_update_geofence(data):
@@ -399,10 +410,14 @@ def main():
     model_path = config['models'][tier]
     
     # Connect to SocketIO
-    try:
-        sio.connect(dashboard_url)
-    except Exception as e:
-        print(f"SocketIO connect failed: {e}")
+    connected = False
+    while not connected:
+        try:
+            sio.connect(dashboard_url)
+            connected = True
+        except Exception as e:
+            print(f"SocketIO connect failed: {e}. Retrying in 5 seconds...", flush=True)
+            time.sleep(5)
 
     client_num = 3 if "native_gpu" in client_id else (1 if "constrained" in client_id else 2)
     data_yaml = f"data/partitioned/client_{client_num}/dataset.yaml"

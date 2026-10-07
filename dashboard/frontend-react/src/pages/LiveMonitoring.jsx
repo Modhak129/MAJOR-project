@@ -264,20 +264,21 @@ export default function LiveMonitoring({ socket }) {
   };
 
   const handleModelChange = (newNodeId) => {
+      // Always stop old node cleanly
+      fetch('/api/edge/source', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ node_id: targetNode, source_type: "stopped" })
+      });
+      
+      setProcessedImg(null); // Clear UI to prevent frozen frames
+      
       if (sourceMode === "upload" && demoState !== "idle" && uploadedFile) {
-          // Stop old node
-          fetch('/api/edge/source', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ node_id: targetNode, source_type: "webcam" })
-          });
-          
           setTargetNode(newNodeId);
           
           const newSessionId = crypto.randomUUID();
           setDemoSessionId(newSessionId);
           setDemoState("starting");
-          setProcessedImg(null);
           
           fetch('/api/edge/source', {
             method: 'POST',
