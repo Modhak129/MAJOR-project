@@ -1,36 +1,39 @@
+# ==============================================================================
+# Git Ignore Rules for Industrial PPE Safety Monitoring Project
+# ==============================================================================
+
 # Virtual Environments
 .env
-.venv
-env/
+.venv/
 venv/
+env/
 ENV/
 env.bak/
 venv.bak/
 venv_edge/
 venv_edge_312/
 
-# Workspace & Data Directories
-extra/
-data/
-logs/
-runs/
-poster_graphs/
-experiments/checkpoints/
-results/
-scratch/
+# IDE & Editor Metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
 
-# Python Cache
+# Python Bytecode & Cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .pytest_cache/
+.mypy_cache/
 htmlcov/
 .tox/
 .nox/
 .coverage
 .coverage.*
-.cache
+.cache/
 nosetests.xml
 coverage.xml
 *.cover
@@ -38,16 +41,65 @@ coverage.xml
 .hypothesis/
 pytestdebug.log
 
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Node / JS
+# Frontend Dependencies & Build Output
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Logs & Dump Files
+# Databases & Runtime State
+*.db
+*.sqlite
+*.sqlite3
+dashboard/dashboard.db
+dashboard/database.db
+dashboard/project.db
+
+# Datasets (Strictly excluded - datasets must never be uploaded)
+data/raw_dataset/
+data/partitioned/
+data/processed/
+data/local_training/
+data/uploads/*
+!data/uploads/.gitkeep
+data/*.yaml
+data/*.txt
+extra/
+my_downloaded_videos/
+testing_v/
+
+# Video & Large Media Files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Training Runs, Checkpoints & Scratch Files
+runs/
+experiments/checkpoints/
+experiments/session_summary_*.json
+results/
+scratch/
+diagnostics/
+poster_graphs/
+logs/
+
+# Intermediate Training Checkpoints, Old Weights & Stubs
+edge/weights/training/
+edge/weights/sh17_yolov8n_best.onnx
+edge/weights/sh17_yolov8n_fine_best.onnx
+edge/weights/sh17_yolov8n_best.pt
+edge/weights/sh17_yolov8n_fine_best.pt
+edge/weights/sh17_yolov8s_best.pt
+edge/weights/yolov8n.onnx
+edge/weights/yolov8n.pt
+edge/weights/yolov8s.pt
+/weights/
+/yolov8n.pt
+*.data
+
+# Logs & Debug Dumps
 *.log
 docker_logs*.txt
 full_logs.txt
@@ -62,7 +114,35 @@ sh17_train.txt
 sh17_val.txt
 dataset_audit_output.txt
 
-# Intermediate Training Checkpoints (Keep best trained models, exclude scratch training checkpoints)
-edge/weights/training/
-*.data
-/yolov8n.pt
+# Local Audit & Benchmark One-Off Scripts (Machine-Specific)
+scripts/
+reports/
+ab_test_models.py
+audit_roboflow.py
+benchmark_both.py
+benchmark_twostage_roboflow.py
+compare_val.py
+debug_inference.py
+evaluate_finetuned.py
+fast_audit.py
+inspect_dataset.py
+prepare_data.py
+report_three_model.py
+sh17_japanppe_test.py
+sh17_absolute.yaml
+sh17_local.yaml
+roboflow_local.yaml
+testing_results_table.md
+threshold_sweep.py
+threshold_test.py
+train_roboflow.py
+train_sh17.py
+val_models.py
+val_roboflow.py
+val_sh17.py
+video_downloader.py
+video_info.py
+edge/inference_baseline.py
+edge/inference_backup.py
+test_inference.py
+README.txt

@@ -342,5 +342,61 @@ def demo_control():
     socketio.emit('edge_control', {"client_id": client_id, "command": "demo_control", "action": data.get("action")})
     return jsonify({"status": f"Demo control {data.get('action')} sent"})
 
+@app.route('/api/video/remove', methods=['POST'])
+def remove_video():
+    data = request.json or {}
+    node_id = data.get("node_id")
+    filename = data.get("filename")
+    session_id = data.get("session_id")
+
+    # Map node_id to client_id
+    client_id = "node_constrained" if node_id == "edge_node_1" else "node_capable" if node_id == "edge_node_2" else node_id
+
+    # Stop demo on target node, or broadcast to all nodes if not specified
+    if client_id:
+        socketio.emit('edge_control', {
+            "client_id": client_id,
+            "command": "stop_demo",
+            "session_id": session_id
+        })
+        socketio.emit('edge_control', {
+            "client_id": client_id,
+            "command": "set_source",
+            "source": {"source_type": "stopped", "session_id": None}
+        })
+    else:
+        socketio.emit('edge_control', {
+            "command": "stop_demo",
+            "session_id": session_id
+        })
+        socketio.emit('edge_control', {
+            "command": "set_source",
+            "source": {"source_type": "stopped", "session_id": None}
+        })
+
+    # Safe server-side file deletion
+    file_deleted = False
+    if filename:
+        safe_name = secure_filename(filename)
+        if safe_name:
+            upload_dir = os.path.abspath(app.config['UPLOAD_FOLDER'])
+            file_path = os.path.abspath(os.path.join(upload_dir, safe_name))
+            # Validate that the resolved path is strictly inside upload_dir
+            if file_path.startswith(upload_dir + os.sep) and os.path.exists(file_path):
+                try:
+                    import time
+                    time.sleep(0.1)  # Brief pause for edge node to release any handle
+                    os.remove(file_path)
+                    file_deleted = True
+                    print(f"[Upload] Safely removed file: {file_path}", flush=True)
+                except Exception as e:
+                    print(f"[Upload] Error removing file {file_path}: {e}", flush=True)
+
+    return jsonify({
+        "status": "success",
+        "message": "Demo stopped and video detached",
+        "file_deleted": file_deleted
+    })
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, allow_unsafe_werkzeug=True)

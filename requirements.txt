@@ -1,13 +1,29 @@
+# ==============================================================================
+# Industrial PPE Safety Monitoring & Federated Edge AI
+# Core Python Dependencies
+# ==============================================================================
+
+# Web Dashboard & API
 Flask>=3.0.0
 Flask-Cors>=4.0.0
 Flask-SocketIO>=5.3.0
 Flask-SQLAlchemy>=3.1.0
-docker>=6.1.0
-opencv-python-headless>=4.8.0
-numpy<2.0.0
+python-socketio>=5.11.0
+requests>=2.28.0
+
+# Computer Vision & Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.1.0
+opencv-python>=4.8.0
+numpy>=1.24.0,<2.0.0
+shapely>=2.0.0
+lapx>=0.5.5
+
+# Federated Learning Engine
+flwr>=1.8.0,<2.0.0
 pyyaml>=6.0
-ultralytics
-flwr==1.9.0
-requests
-shapely
-lapx==0.5.11
+
+# Optional Model Export & Container Management
+onnx>=1.15.0
+docker>=6.1.0

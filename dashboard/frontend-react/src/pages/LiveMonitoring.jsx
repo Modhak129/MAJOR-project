@@ -2,11 +2,12 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import GeofenceDrawer from "../components/GeofenceDrawer";
 import AlertFeed from "../components/AlertFeed";
-import { Server, Cpu, Database, Activity, UploadCloud, Play, Pause, RotateCcw, Camera, Film } from 'lucide-react';
+import { Server, Cpu, Database, Activity, UploadCloud, Play, Pause, RotateCcw, Camera, Film, Trash2 } from 'lucide-react';
 
 export default function LiveMonitoring({ socket }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [processedImg, setProcessedImg] = useState(null);
   const [streamActive, setStreamActive] = useState(false);
   const [polygon, setPolygon] = useState([]);
@@ -21,6 +22,7 @@ export default function LiveMonitoring({ socket }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [demoState, setDemoState] = useState("idle"); // idle, playing, paused, finished
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     const getDevices = async () => {
@@ -107,9 +109,11 @@ export default function LiveMonitoring({ socket }) {
         const imgStr = typeof data === 'string' ? data : data.image;
         const msgSessionId = typeof data === 'string' ? null : data.session_id;
         
-        // Prevent stale frames from old sessions
-        if (sourceMode === "upload" && demoSessionId && msgSessionId && msgSessionId !== demoSessionId) {
-            return;
+        // Prevent stale frames from old sessions or when demo has been removed
+        if (sourceMode === "upload") {
+            if (!demoSessionId || (msgSessionId && msgSessionId !== demoSessionId)) {
+                return;
+            }
         }
         
         setProcessedImg(imgStr);
@@ -123,8 +127,10 @@ export default function LiveMonitoring({ socket }) {
     };
     const finishedHandler = (data) => {
         if (data.node_id && (data.node_id === targetNode || (targetNode === "node_constrained" && data.node_id === "edge_node_1") || (targetNode === "node_capable" && data.node_id === "edge_node_2"))) {
-            if (sourceMode === "upload" && demoSessionId && data.session_id && data.session_id !== demoSessionId) {
-                return; // Stale event
+            if (sourceMode === "upload") {
+                if (!demoSessionId || (data.session_id && data.session_id !== demoSessionId)) {
+                    return; // Stale event
+                }
             }
             setDemoState("finished");
         }
@@ -263,6 +269,57 @@ export default function LiveMonitoring({ socket }) {
     }).catch(e => console.error(e));
   };
 
+  const handleRemoveVideo = async () => {
+    if (isRemoving || !uploadedFile) return;
+    setIsRemoving(true);
+
+    const currentSessionId = demoSessionId;
+    const filenameToRemove = uploadedFile?.filename;
+
+    let removeSuccess = false;
+    try {
+      const res = await fetch('/api/video/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          node_id: targetNode,
+          filename: filenameToRemove,
+          session_id: currentSessionId
+        })
+      });
+      if (res.ok) {
+        removeSuccess = true;
+      } else {
+        alert("Failed to stop and remove video on server. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error communicating removal to backend:", err);
+      alert("Network error: Unable to reach server to remove video. Please try again.");
+    }
+
+    if (removeSuccess) {
+      // Invalidate session and reset all demo-specific states
+      setDemoSessionId(null);
+      setUploadedFile(null);
+      setUploadStatus("idle");
+      setUploadProgress(0);
+      setDemoState("idle");
+      setProcessedImg(null);
+      setFps(0);
+
+      // Reset HTML file input so user can re-upload same file immediately
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      const inputElem = document.getElementById('video-upload');
+      if (inputElem) {
+        inputElem.value = "";
+      }
+    }
+
+    setIsRemoving(false);
+  };
+
   const handleModelChange = (newNodeId) => {
       // Always stop old node cleanly
       fetch('/api/edge/source', {
@@ -345,12 +402,12 @@ export default function LiveMonitoring({ socket }) {
             {sourceMode === "upload" && (
                 <div className="w-full bg-black/40 p-6 rounded-lg border border-white/10">
                     {uploadStatus === "idle" || uploadStatus === "error" ? (
-                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-600 rounded-lg hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer" onClick={() => document.getElementById('video-upload').click()}>
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-600 rounded-lg hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer" onClick={() => !isRemoving && fileInputRef.current?.click()}>
                             <UploadCloud className="w-12 h-12 text-slate-400 mb-4" />
                             <p className="text-white font-medium mb-2 text-lg">Upload Demo Video</p>
                             <p className="text-sm text-slate-400 mb-4">Drag & drop your video here or <span className="text-emerald-400">Choose Video</span></p>
                             <p className="text-xs text-slate-500 font-mono">MP4 • AVI • MOV</p>
-                            <input type="file" id="video-upload" accept=".mp4,.avi,.mov" className="hidden" onChange={handleFileUpload} />
+                            <input ref={fileInputRef} type="file" id="video-upload" accept=".mp4,.avi,.mov" className="hidden" onChange={handleFileUpload} disabled={isRemoving} />
                             {uploadStatus === "error" && <p className="text-red-400 text-sm mt-4">Video upload failed. Please try again.</p>}
                         </div>
                     ) : uploadStatus === "uploading" ? (
@@ -368,26 +425,56 @@ export default function LiveMonitoring({ socket }) {
                                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg">✓</div>
                                     <div>
                                         <p className="font-medium text-emerald-400 text-sm">Uploaded successfully</p>
-                                        <p className="text-white font-mono text-sm">{uploadedFile.filename}</p>
+                                        <p className="text-white font-mono text-sm">{uploadedFile?.filename}</p>
                                     </div>
                                 </div>
-                                {demoState === "idle" && (
-                                    <button onClick={startDemoAnalysis} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors shadow-lg shadow-emerald-900/20">
-                                        <Play className="w-4 h-4" /> Start Demo Analysis
+                                <div className="flex items-center gap-2">
+                                    {demoState === "idle" && (
+                                        <button onClick={startDemoAnalysis} disabled={isRemoving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors shadow-lg shadow-emerald-900/20 disabled:opacity-50">
+                                            <Play className="w-4 h-4" /> Start Demo Analysis
+                                        </button>
+                                    )}
+                                    <button 
+                                        onClick={handleRemoveVideo} 
+                                        disabled={isRemoving}
+                                        className="flex items-center gap-2 bg-slate-700 hover:bg-red-900/50 hover:border-red-500/50 border border-white/10 text-slate-300 hover:text-red-200 px-3 py-2 rounded text-sm font-medium transition-all disabled:opacity-50"
+                                        title="Remove Video"
+                                    >
+                                        {isRemoving ? (
+                                            <span className="flex items-center gap-2"><RotateCcw className="w-4 h-4 animate-spin text-slate-400" /> Removing...</span>
+                                        ) : (
+                                            <>
+                                                <Trash2 className="w-4 h-4 text-red-400" />
+                                                <span>Remove Video</span>
+                                            </>
+                                        )}
                                     </button>
-                                )}
+                                </div>
                             </div>
 
                             {/* Demo Playback Controls */}
                             {demoState !== "idle" && uploadStatus === "success" && (
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border border-white/10 bg-slate-800/30 p-4 rounded-lg gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <button onClick={togglePlayPause} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm text-white font-medium transition-colors">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <button onClick={togglePlayPause} disabled={isRemoving} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm text-white font-medium transition-colors disabled:opacity-50">
                                             {demoState === "playing" ? <Pause className="w-4 h-4"/> : <Play className="w-4 h-4"/>} 
                                             {demoState === "playing" ? "Pause" : "Play"}
                                         </button>
-                                        <button onClick={handleReset} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm text-white font-medium transition-colors">
+                                        <button onClick={handleReset} disabled={isRemoving} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm text-white font-medium transition-colors disabled:opacity-50">
                                             <RotateCcw className="w-4 h-4"/> Replay
+                                        </button>
+                                        <button 
+                                            onClick={handleRemoveVideo} 
+                                            disabled={isRemoving} 
+                                            className="flex items-center gap-2 bg-slate-700 hover:bg-red-900/50 hover:border-red-500/50 border border-white/10 text-slate-300 hover:text-red-200 px-4 py-2 rounded text-sm font-medium transition-all disabled:opacity-50"
+                                        >
+                                            {isRemoving ? (
+                                                <span className="flex items-center gap-2"><RotateCcw className="w-4 h-4 animate-spin text-slate-400" /> Removing...</span>
+                                            ) : (
+                                                <>
+                                                    <Trash2 className="w-4 h-4 text-red-400"/> Remove Video
+                                                </>
+                                            )}
                                         </button>
                                     </div>
                                     <div className="flex items-center gap-2 font-mono text-sm">

@@ -261,7 +261,8 @@ def on_edge_control(data):
     global video_source_type, demo_playback_state, demo_video_path, demo_cap, demo_frame_delay
     global demo_session_id
     client_id = os.environ.get("CLIENT_ID", "unknown")
-    if data.get("client_id") == client_id:
+    target_client = data.get("client_id")
+    if target_client is None or target_client == client_id:
         cmd = data.get("command")
         mode = data.get("mode")
         
@@ -285,16 +286,41 @@ def on_edge_control(data):
                 pass
             print(f"[{client_id}] Control command applied: {mode}")
 
+        elif cmd == "stop_demo":
+            video_source_type = "stopped"
+            demo_playback_state = "stopped"
+            demo_video_path = None
+            demo_session_id = None
+            if demo_cap:
+                demo_cap.release()
+                demo_cap = None
+            if inference_engine:
+                inference_engine.reset_tracker()
+            print(f"[{client_id}] Demo stopped, video capture released, tracker reset.")
+
         elif cmd == "set_source":
             source_data = data.get("source", {})
             src_type = source_data.get("source_type")
             if src_type == "webcam":
                 video_source_type = "webcam"
                 demo_playback_state = "stopped"
+                demo_video_path = None
+                demo_session_id = None
                 if demo_cap:
                     demo_cap.release()
                     demo_cap = None
                 print(f"[{client_id}] Source set to: webcam")
+            elif src_type == "stopped":
+                video_source_type = "stopped"
+                demo_playback_state = "stopped"
+                demo_video_path = None
+                demo_session_id = None
+                if demo_cap:
+                    demo_cap.release()
+                    demo_cap = None
+                if inference_engine:
+                    inference_engine.reset_tracker()
+                print(f"[{client_id}] Source set to: stopped")
             elif src_type == "upload":
                 # We do NOT immediately open the video. We wait for 'play' or 'reset' to actually start.
                 video_source_type = "upload"
@@ -308,6 +334,19 @@ def on_edge_control(data):
 
         elif cmd == "demo_control":
             action = data.get("action")
+            if action == "stop":
+                video_source_type = "stopped"
+                demo_playback_state = "stopped"
+                demo_video_path = None
+                demo_session_id = None
+                if demo_cap:
+                    demo_cap.release()
+                    demo_cap = None
+                if inference_engine:
+                    inference_engine.reset_tracker()
+                print(f"[{client_id}] Demo control: stop, video capture released")
+                return
+
             if video_source_type != "upload":
                 return
                 
@@ -345,7 +384,7 @@ def run_background_inference_loop():
     first_frame_emitted = False
     
     while True:
-        if not inference_running or edge_mode != "MONITOR" or video_source_type != "upload":
+        if not inference_running or edge_mode != "MONITOR" or video_source_type != "upload" or demo_session_id is None:
             time.sleep(0.5)
             first_frame_emitted = False
             continue
@@ -355,9 +394,10 @@ def run_background_inference_loop():
             continue
             
         if demo_cap is None or not demo_cap.isOpened():
-            print(f"Demo error: cap not opened")
-            demo_playback_state = "error"
-            sio.emit('demo_error', {"node_id": os.environ.get("CLIENT_ID"), "session_id": demo_session_id})
+            if demo_playback_state == "playing" and demo_session_id is not None:
+                print(f"Demo error: cap not opened")
+                demo_playback_state = "error"
+                sio.emit('demo_error', {"node_id": os.environ.get("CLIENT_ID"), "session_id": demo_session_id})
             continue
             
         start_time = time.time()

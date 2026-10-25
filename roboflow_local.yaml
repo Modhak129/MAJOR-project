@@ -1,6 +1,0 @@
-train: "C:/Major Project/Project-2/data/raw_dataset/Dataset Roboflow/train/images"
-val: "C:/Major Project/Project-2/data/raw_dataset/Dataset Roboflow/valid/images"
-test: "C:/Major Project/Project-2/data/raw_dataset/Dataset Roboflow/test/images"
-
-nc: 14
-names: ['Fall-Detected', 'Gloves', 'Goggles', 'Hardhat', 'Ladder', 'Mask', 'NO-Gloves', 'NO-Goggles', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 'Person', 'Safety Cone', 'Safety Vest']

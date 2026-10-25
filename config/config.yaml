@@ -8,7 +8,7 @@ fl:
   fedprox_mu: 0.01
 
 adaptive:
-  vram_threshold_mb: 8192 # Changed from 4096 to ensure nodes use the 100-epoch pretrained nano model
+  vram_threshold_mb: 8192
   sparsification_k: 0.01
   performance_threshold_fps: 15.01
   kd_temperature: 4.0
@@ -34,9 +34,10 @@ inference:
 models:
   nano: "edge/weights/clean_sh17_yolov8n_640_best.pt"
   small: "edge/weights/sh17_yolov8s_fine_best.pt"
+  focused_small: "edge/weights/sh17_focused_yolov8s_640_best.pt"
+  focused_nano: "edge/weights/sh17_focused_yolov8n_640_best.pt"
 
 server:
   grpc_port: 8080
   dashboard_port: 5000
   checkpoint_dir: "experiments/checkpoints"
-
